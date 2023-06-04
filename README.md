@@ -114,7 +114,7 @@ The parent component<ParentComponent> provides a handler function to the child c
 
 ```javascript
 	
-	export default function ParentComponent() {
+export default function ParentComponent() {
   const [state, setState] = useState(false);
   const [dep] = useState(false);
   console.log("Parent Component redered");
@@ -135,21 +135,20 @@ The parent component<ParentComponent> provides a handler function to the child c
       <MyList handler={handler} />
     </>
   );
+```
 	
-	```
-	
-handler callback is memoized by useCallback(). As long as dep is the same, useCallback() returns the same function object. When <ParentComponent> re-renders, the handler function object remains the same and doesn’t break the memorization of <MyList>.
+handler callback is memoized by useCallback(). As long as dep is the same, `useCallback()` returns the same function object. When <ParentComponent> re-renders, the handler function object remains the same and doesn’t break the memorization of `<MyList>`.
 	
 	
  ### When you should not use useCallback()
 	
 Let’s make sure we don’t go overboard. useCallback() has its downsides, primarily code complexity. There are a lot of situations where adding useCallback() doesn’t make sense and you just have to accept function recreation.
 
-useCallback() has its performance drawbacks, as it still has to run on every component re-render.
+`useCallback()` has its performance drawbacks, as it still has to run on every component re-render.
 In this example, useCallback() is not helping optimization, since we’re creating the clickHandler function on every render anyways; actually, the optimization costs more than not having the optimization.
 	
 ```javascript
-	export default function MyComponent() {
+export default function MyComponent() {
     
   // poor usage of useCallback()
   const clickHandler = useCallback(() => {
@@ -162,7 +161,7 @@ In this example, useCallback() is not helping optimization, since we’re creati
 const ButtonWrapper = ({ clickHandler }) => {
   return <button onClick={clickHandler}>Child Component</button>;
 };
-	```
+```
 	
 ### Conclusion
 useCallback(callback, dependencies) can be used like useMemo(), but it memoizes functions instead of values, to prevent recreation upon every render. allowing you to avoid unnecessary re-rendering which makes your application more efficient.

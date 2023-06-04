@@ -389,3 +389,20 @@ During initial rendering React still determines the output of the component, so 
 useEffect(callback, []) hook invokes the callback right after mounting when the input element has already been created in DOM.
 
 callback function of the useEffect(callback, []) is the right place to access inputRef.current because it is guaranteed that the DOM is constructed.
+	
+### 4. Summary
+useRef() hook creates references.
+
+Calling const reference = useRef(initialValue) with the initial value returns a special object named reference. The reference object has a property current: you can use this property to read the reference value reference.current, or update reference.current = newValue.
+
+Between the component re-renderings, the value of the reference is persisted.
+
+Updating a reference, contrary to updating state, doesn't trigger component re-rendering.
+
+References can also access DOM elements. Assign the reference to ref attribute of the element you'd like to access: <div ref={reference}>Element</div> — and the element is available at reference.current after the component mounting.
+
+Want to improve your React knowledge further? Follow A Simple Explanation of React.useEffect().
+
+Challenge: write a custom hook useEffectSkipFirstRender() that works as useEffect(), only that it doesn't invoke the callback after initial rendering (Hint: you need to use useRef()). Share your solution in a comment below!
+
+

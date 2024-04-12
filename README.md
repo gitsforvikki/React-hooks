@@ -1,5 +1,105 @@
 # React-hooks
 
+Hooks were a feature introduced years later in 2016 (in React's 16.8 version). Just to have an idea of what hooks are for and why are they improvement over what was done before, let's view an example of "pre-hooks" code against some modern React "post-hooks" code.
+
+In old React code, we used class components. These had a render method which contained the JSX responsible for rendering the UI.
+
+And if we wanted this component to store a state, we had to declare it within a constructor method and change it by calling this.setState. Beneath is a short example for you to have an idea:
+
+
+```javascript
+import React from "react"
+
+class Counter extends React.Component {
+    constructor(props) {
+      super(props)
+      this.state = { count: 0 }
+    }
+
+    handleIncrement = () => { this.setState(prevState => {
+        return { count: prevState.count - 1 };
+      })
+    }
+
+    handleDecrement = () => { this.setState(prevState => {
+        return { count: prevState.count + 1 };
+      })
+    }
+
+    render() {
+
+      return (
+        <div className="App">
+
+          <button onClick={this.handleIncrement}>Increment</button>
+          <button onClick={this.handleDecrement}>Decrement</button>
+
+          <h2>{this.state.count}</h2>
+        </div>
+      )
+    }
+  }
+
+  export default Counter
+```
+It's important to mention that function components (what we use nowadays) were available in "pre-hooks" React too. But we could only use them for stateless components – meaning components that didn't store state and weren't responsible of any complex logic apart from just rendering UI.
+
+With the incorporation of hooks, we can now use function components (and their more straight-forward and less verbose composition) together with all the more complex functionalities class components offered us.
+
+Here's another example were we transform what we had in our class component into a functional one:
+
+```javascript 
+import { useState } from 'react'
+
+export default function Counter() {
+
+    const [count, setCount] = useState(0)
+
+    const handleIncrement = () => setCount(count+1)
+    const handleDecrement = () => setCount(count-1)
+
+    return (
+        <div className="App">
+            <button onClick={() => handleIncrement()}>Increment</button>
+            <button onClick={() => handleDecrement()}>Decrement</button>
+
+            <h2>{count}</h2>
+        </div>                    
+    )
+}
+```
+### UseState() hook
+The state is an object that holds information about a certain component. Plain JavaScript functions don't have the ability to store information. The code within them executes and "disappears" once the execution is finished.
+
+But thanks to state, React functional components can store information even after execution. When we need a component to store or "remember" something, or to act in a different way depending on the environment, state is what we need to make it work this way.
+
+It's important to mention that the setState function is asynchronous. So if we try to read the state immediately after updating it, like this:
+```javascript
+<button onClick={() => {
+          setCount(count+1)
+          console.log(count)
+}}>Add 1</button>
+```
+we would get the previous value of the state, without the update.
+
+The correct way of reading state after the update would be using the useEffect hook. It lets us execute a function after every component re-render (by default) or after any particular variable where we declare changes.
+
+Also, the fact that useState is asynchronous has implications when considering very frequent and quick state changes.
+
+Take, for example, the case of a user that presses the ADD button many times in a row, or a loop that emits a click event a certain number of times.
+
+By updating state like setCount(count+1) we take the risk that count won't yet be updated when the next event is fired.
+
+For example, let's say at the start count = 0. Then setCount(count+1) is called and the state is asynchronously updated.
+
+But then again setCount(count+1) is called, before the state update was completed. This means that still count = 0, which means that the second setCount won't update the state correctly.
+
+A more defensive approach would be to pass setCount a callback, like so: setCount(prevCount => prevCount+1).
+
+This makes sure that the value to update is the most recent one and keeps us away from the problem mentioned above. Every time we perform updates on a previous state we should use this approach.
+
+
+
 
 ### 1. useMemo() hook
 useMemo() is a built-in React hook that accepts 2 arguments — a function compute that computes a result, and the depedencies array:

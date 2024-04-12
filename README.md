@@ -72,6 +72,9 @@ export default function Counter() {
 The state is an object that holds information about a certain component. Plain JavaScript functions don't have the ability to store information. The code within them executes and "disappears" once the execution is finished.
 
 But thanks to state, React functional components can store information even after execution. When we need a component to store or "remember" something, or to act in a different way depending on the environment, state is what we need to make it work this way.
+```javascript
+const [count, setCount] = useState(0)
+```
 
 It's important to mention that the setState function is asynchronous. So if we try to read the state immediately after updating it, like this:
 ```javascript
@@ -97,6 +100,133 @@ But then again setCount(count+1) is called, before the state update was complete
 A more defensive approach would be to pass setCount a callback, like so: setCount(prevCount => prevCount+1).
 
 This makes sure that the value to update is the most recent one and keeps us away from the problem mentioned above. Every time we perform updates on a previous state we should use this approach.
+
+### useEffect hook()
+UseEffect allows you to run a side effect on your component. Side effect basically means something that happens after some other specific thing happens.
+
+A typical use case is to fetch data once the component has been mounted. Let's say we have a function called fetchData which is responsible for that – our useEffect hook might look like this:
+
+```javasscript
+  useEffect(() => { fetchData() }, [])
+```
+The structure of this hook is quite simple. It accepts two arguments. First we have a callback which executes our function and then we have an array called "array of dependencies". If we leave it empty like it is in the example, the callback will execute after the component renders.
+
+```javascript
+import { useState } from 'react'
+
+function App() {
+
+  const [count, setCount] = useState(0)
+  
+  useEffect(() => { console.log('Count has changed!') }, [count])
+
+  return (
+    <div className="App">
+      <p>Count is: {count}</p>
+
+      <div>
+        <button onClick={() => setCount(count+1)}>Add 1</button>
+        <button onClick={() => setCount(count-1)}>Decrease 1</button>
+
+        <button onClick={() => setCount(0)}>Reset count</button>
+      </div>
+    </div>
+  )
+}
+
+export default App
+```
+A third and last thing to mention about useEffect is the possibility to return a "cleanup" function. This "cleanup" function will execute when the component unmounts. Following our previous example, adding a cleanup function might look like this:
+```javascript  useEffect(() => {
+    fetchData()
+    return cleanUp()
+  }, [])
+```
+Cleanup functions in useEffect are normally used to cancel subscriptions to avoid React trying to update the state of a component that has already been unmounted.
+
+
+### useContext hook()
+React context API was released in 2016 with React's 16.3 version. What context does in React is to provide a solution for prop drilling.
+
+Prop drilling refers to the situation in which we have a parent component that stores a state. And beneath that parent, we have many levels of children components.
+
+If we need to render that state in a child component that is deeply nested in that structure, the solution would be to pass the state as props all along the component chain.
+
+![image](https://github.com/gitsforvikki/React-hooks/assets/52384251/36c361ef-aa4e-484a-88a6-a8c1352e024e)
+
+This option works just fine. The problem is we would need to repeat the same code in many different places, which if we ever need to change our code later on (you'll always have to do this sooner or later) is something very tedious to work with and prone to errors and bugs.
+The context API solves this situation by providing "a place" to store state that needs to be consumed from many different parts of our application, and along different levels of the component tree.
+The way this works is that the context component will store the given state, and from any given component we can read and update that state, no matter where that component is located. We forget all about props. Instead, we can just work directly with the context and all the components that read that context state will re-render when the state is updated.
+
+![image](https://github.com/gitsforvikki/React-hooks/assets/52384251/0580e0e2-e949-439b-9db6-b6a840eb6ad7)
+
+Now that we have the theoretical foundation, let's see how the useContext hook allows us to use this API. The typical implementation would look something like this. Within a "context" folder we'll have two files. Context.js and ContextProvider.js.
+
+Within Context.js we'll just initialize the context API by using the createContext function, which takes as an argument the initial state we want to provide (we don't want anything in this case so we can just pass null).
+```javascript
+/// Context.js 
+import React from 'react';
+ 
+// Creating the context object and passing the default values.
+const authContext = React.createContext({status:null,login:()=>{}});
+ 
+export default authContext;
+```
+ we'll wrap all the components that we want to be able to interact with the state with our contextProvider
+ 
+```javascript
+import React, { useState } from "react";
+import Auth from "./Auth";
+import AuthContext from "./auth-context";
+ 
+const App = () => {
+  //using the state to dynamicallly pass the values to the context
+ 
+  const [authstatus, setauthstatus] = useState(false);
+  const login = () => {
+    setauthstatus(true);
+  };
+  return (
+    <React.Fragment>
+      <AuthContext.Provider value={{ status: authstatus, login: login }}>
+        <Auth />
+      </AuthContext.Provider>
+    </React.Fragment>
+  );
+};
+export default App;
+```
+Finally, from the component we want to read/update context state, we import the context and the useContext hook and destructure the states and functions in the following way (and just use the regular state and setState functions).
+
+```javascript
+import React, { useContext } from "react";
+import AuthContext from "./auth-context";
+ 
+const Auth = () => {
+  // Now all the data stored in the context can 
+  // be accessed with the auth variable
+  const auth = useContext(AuthContext);
+  console.log(auth.status);
+  return (
+    <div>
+      <h1>Are you authenticated?</h1>
+      {auth.status ? 
+ 
+<p>Yes you are</p>
+ 
+ : 
+ 
+<p>Nopes</p>
+ 
+}
+ 
+      <button onClick={auth.login}>Click To Login</button>
+    </div>
+  );
+};
+export default Auth;
+```
+
 
 
 
